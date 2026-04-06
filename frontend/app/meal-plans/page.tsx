@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { MealPlanDto, MealPlanDetailDto, RecipeDto, ShoppingListItemDto } from "@/lib/types"
 import { Button } from "@/components/ui/button"
@@ -9,12 +8,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 
-async function fetchApiClient<T = void>(url: string, accessToken: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`http://localhost:5285${url}`, {
+async function fetchApiClient<T = void>(url: string, options?: RequestInit): Promise<T> {
+    const response = await fetch(`/api/backend${url}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
             ...options?.headers,
         },
     })
@@ -56,8 +54,6 @@ function unitLabel(unit: number): string {
 }
 
 export default function MealPlansPage() {
-    const { data: session, status } = useSession()
-    const accessToken = (session as any)?.accessToken ?? ""
     const queryClient = useQueryClient()
     const [weekOffset, setWeekOffset] = useState(0)
     const [addingEntry, setAddingEntry] = useState<{ day: number; mealType: number } | null>(null)
@@ -69,8 +65,7 @@ export default function MealPlansPage() {
 
     const { data: mealPlans = [] } = useQuery({
         queryKey: ["meal-plans"],
-        queryFn: () => fetchApiClient<MealPlanDto[]>("/api/MealPlans", accessToken),
-        enabled: !!accessToken,
+        queryFn: () => fetchApiClient<MealPlanDto[]>("/api/MealPlans"),
     })
 
     const currentPlan = mealPlans.find(p => p.weekStartDate === weekStartStr)
@@ -81,25 +76,24 @@ export default function MealPlansPage() {
 
     const { data: planDetail } = useQuery({
         queryKey: ["meal-plan", currentPlan?.id],
-        queryFn: () => fetchApiClient<MealPlanDetailDto>(`/api/MealPlans/${currentPlan!.id}`, accessToken),
-        enabled: !!accessToken && !!currentPlan,
+        queryFn: () => fetchApiClient<MealPlanDetailDto>(`/api/MealPlans/${currentPlan!.id}`),
+        enabled: !!currentPlan,
     })
 
     const { data: recipes = [] } = useQuery({
         queryKey: ["recipes"],
-        queryFn: () => fetchApiClient<RecipeDto[]>("/api/Recipes", accessToken),
-        enabled: !!accessToken,
+        queryFn: () => fetchApiClient<RecipeDto[]>("/api/Recipes"),
     })
 
     const { data: shoppingList = [] } = useQuery({
         queryKey: ["shopping-list", currentPlan?.id],
-        queryFn: () => fetchApiClient<ShoppingListItemDto[]>(`/api/MealPlans/${currentPlan!.id}/shopping-list`, accessToken),
-        enabled: !!accessToken && !!currentPlan,
+        queryFn: () => fetchApiClient<ShoppingListItemDto[]>(`/api/MealPlans/${currentPlan!.id}/shopping-list`),
+        enabled: !!currentPlan,
     })
 
     const { mutate: createPlan, isPending: isCreating } = useMutation({
         mutationFn: () =>
-            fetchApiClient<number>("/api/MealPlans", accessToken, {
+            fetchApiClient<number>("/api/MealPlans", {
                 method: "POST",
                 body: JSON.stringify({ weekStartDate: weekStartStr }),
             }),
@@ -108,7 +102,7 @@ export default function MealPlansPage() {
 
     const { mutate: addEntry } = useMutation({
         mutationFn: ({ recipeId, day, mealType }: { recipeId: number; day: number; mealType: number }) =>
-            fetchApiClient<number>(`/api/MealPlans/${currentPlan!.id}/entries`, accessToken, {
+            fetchApiClient<number>(`/api/MealPlans/${currentPlan!.id}/entries`, {
                 method: "POST",
                 body: JSON.stringify({ mealPlanId: currentPlan!.id, recipeId, day, mealType }),
             }),
@@ -121,7 +115,7 @@ export default function MealPlansPage() {
 
     const { mutate: removeEntry } = useMutation({
         mutationFn: (entryId: number) =>
-            fetchApiClient(`/api/MealPlans/entries/${entryId}`, accessToken, { method: "DELETE" }),
+            fetchApiClient(`/api/MealPlans/entries/${entryId}`, { method: "DELETE" }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["meal-plan", currentPlan?.id] })
             queryClient.invalidateQueries({ queryKey: ["shopping-list", currentPlan?.id] })
@@ -130,8 +124,6 @@ export default function MealPlansPage() {
 
     const getEntry = (day: number, mealType: number) =>
         planDetail?.entries.find(e => e.day === day && e.mealType === mealType)
-
-    if (status === "loading") return null
 
     return (
         <main className="min-h-screen bg-stone-50 px-4 py-12">
