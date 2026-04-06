@@ -7,3 +7,8 @@ global using SmartMealPlanner.Application.Recipes.Queries.GetRecipeById;
 global using SmartMealPlanner.Application.Recipes.Commands.CreateRecipe;
 global using SmartMealPlanner.Application.Recipes.Commands.DeleteRecipe;
 global using SmartMealPlanner.Application.Recipes.Commands.UpdateRecipe;
+global using SmartMealPlanner.Application.Ingredients.Queries.GetIngredients;
+global using SmartMealPlanner.Application.Ingredients.Queries.GetIngredientById;
+global using SmartMealPlanner.Application.Ingredients.Commands.CreateIngredient;
+global using SmartMealPlanner.Application.Ingredients.Commands.DeleteIngredient;
+global using SmartMealPlanner.Application.Ingredients.Commands.UpdateIngredient;

@@ -6,3 +6,4 @@ global using FluentValidation;
 global using MediatR;
 global using SmartMealPlanner.Application.Common.Interfaces;                                                                                                          
 global using SmartMealPlanner.Domain.Entities;
+global using SmartMealPlanner.Domain.Enums;
