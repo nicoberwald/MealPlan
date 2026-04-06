@@ -11,6 +11,7 @@ public class Recipes : IEndpointGroup
         groupBuilder.MapPost(CreateRecipe, "/");      // POST /api/Recipes
         groupBuilder.MapPut(UpdateRecipe, "/{id}");   // PUT /api/Recipes/5
         groupBuilder.MapDelete(DeleteRecipe, "/{id}");// DELETE /api/Recipes/5
+        groupBuilder.MapPost(GenerateRecipe, "/generate");
     }
 
     public static async Task<Ok<IEnumerable<RecipeDto>>> GetRecipes(ISender sender)
@@ -33,7 +34,7 @@ public class Recipes : IEndpointGroup
 
     public static async Task<NoContent> UpdateRecipe(int id, UpdateRecipeCommand command, ISender sender)
     {
-        await sender.Send(command with { Id = id});
+        await sender.Send(command with { Id = id });
         return TypedResults.NoContent();
     }
 
@@ -41,5 +42,11 @@ public class Recipes : IEndpointGroup
     {
         await sender.Send(new DeleteRecipeCommand { Id = id });
         return TypedResults.NoContent();
+    }
+
+    public static async Task<Created<int>> GenerateRecipe(GenerateRecipeCommand command, ISender sender)
+    {
+        var id = await sender.Send(command);
+        return TypedResults.Created($"/api/Recipes/{id}", id);
     }
 }
