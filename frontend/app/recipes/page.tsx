@@ -1,40 +1,34 @@
 "use client"
 
 import { useState } from "react"
-import { useSession } from "next-auth/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { RecipeDto } from "@/lib/types"
-import { signOut } from "next-auth/react"
 
-async function fetchApiClient<T>(url: string, accessToken: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`http://localhost:5285${url}`, {
+async function fetchApiClient<T = void>(url: string, options?: RequestInit): Promise<T> {
+    const response = await fetch(`/api/backend${url}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
             ...options?.headers,
         },
     })
-
     if (!response.ok) throw new Error(`API error: ${response.status}`)
+    if (response.status === 204) return undefined as T
     return response.json()
 }
 
 export default function RecipesPage() {
-    const { data: session, status } = useSession()
-    const accessToken = (session as any)?.accessToken ?? ""
     const queryClient = useQueryClient()
     const [prompt, setPrompt] = useState("")
 
     const { data: recipes = [], isLoading } = useQuery({
         queryKey: ["recipes"],
-        queryFn: () => fetchApiClient<RecipeDto[]>("/api/Recipes", accessToken),
-        enabled: !!accessToken,
+        queryFn: () => fetchApiClient<RecipeDto[]>("/api/Recipes"),
     })
 
     const { mutate: generate, isPending, error: mutationError } = useMutation({
         mutationFn: () =>
-            fetchApiClient<number>("/api/Recipes/generate", accessToken, {
+            fetchApiClient<number>("/api/Recipes/generate", {
                 method: "POST",
                 body: JSON.stringify({ prompt }),
             }),
@@ -49,9 +43,6 @@ export default function RecipesPage() {
             <div className="max-w-2xl mx-auto">
 
                 {/* Header */}
-                <button onClick={() => signOut({ callbackUrl: "/login" })}>
-                    Log ud
-                </button>
                 <div className="mb-10">
                     <h1 className="text-4xl font-bold tracking-tight text-stone-900">Opskrifter</h1>
                     <p className="mt-1 text-stone-500 text-sm">Generer nye opskrifter med AI eller browse dine gemte.</p>
@@ -86,7 +77,7 @@ export default function RecipesPage() {
                 </div>
 
                 {/* Recipe list */}
-                {status === "loading" || isLoading ? (
+                {isLoading ? (
                     <div className="flex flex-col gap-3">
                         {[1, 2, 3].map((i) => (
                             <div key={i} className="bg-white border border-stone-200 rounded-2xl p-5 animate-pulse">
