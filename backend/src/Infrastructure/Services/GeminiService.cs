@@ -18,7 +18,7 @@ public class GeminiService : IGeminiService
 
     public async Task<string> GenerateRecipeJsonAsync(string prompt, CancellationToken ct)
     {
-        const string systemInstruction = "You are a recipe assistant. Always respond with a single valid JSON object in this exact format, no markdown, no explanation: {\"name\": \"string\", \"description\": \"string\", \"servings\": 0, \"prepTimeMinutes\": 0, \"cookTimeMinutes\": 0}";
+        const string systemInstruction = "You are a recipe assistant. Always respond with a single valid JSON object in this exact format, no markdown, no explanation: {\"name\": \"string\", \"description\": \"string\", \"servings\": 0, \"prepTimeMinutes\": 0, \"cookTimeMinutes\": 0, \"ingredients\": [{\"name\": \"string\", \"quantity\": 0.0, \"unit\": \"Gram\"}]}. For unit, only use one of these exact values: Gram, Kilogram, Milliliter, Liter, Teaspoon, Tablespoon, Cup, Piece.";
 
         var request = new
         {

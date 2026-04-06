@@ -26,3 +26,9 @@ export interface MealPlanDetailDto {
     weekStartDate: string
     entries: MealPlanEntryDto[]
 }
+
+export interface ShoppingListItemDto {
+    name: string
+    quantity: number
+    unit: number
+}

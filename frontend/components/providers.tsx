@@ -13,7 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         // Makes the query accesible for all the other components.
         <QueryClientProvider client={queryClient}>
-            <SessionProvider>
+            <SessionProvider refetchInterval={5 * 60} refetchOnWindowFocus={false}>
                 {children}
             </SessionProvider>
             <ReactQueryDevtools />
