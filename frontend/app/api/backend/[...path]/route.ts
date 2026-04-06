@@ -22,7 +22,21 @@ async function handler(req: NextRequest, { params }: { params: Promise<{ path: s
         return new NextResponse(null, { status: 204 })
     }
 
-    const data = await response.json()
+    // Læs svaret som rå tekst først
+    const text = await response.text()
+    let data = {}
+
+    // Prøv at parse det som JSON, hvis der er indhold
+    if (text) {
+        try {
+            data = JSON.parse(text)
+        } catch (error) {
+            // Hvis det ikke er JSON (f.eks. en ren tekst-fejl fra serveren), 
+            // så returnerer vi bare teksten som en besked.
+            data = { message: text }
+        }
+    }
+
     return NextResponse.json(data, { status: response.status })
 }
 
