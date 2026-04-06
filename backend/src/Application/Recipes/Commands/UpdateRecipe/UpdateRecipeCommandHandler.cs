@@ -9,7 +9,7 @@ public class UpdateRecipeCommandHandler : IRequestHandler<UpdateRecipeCommand>
     public UpdateRecipeCommandHandler(IApplicationDbContext context)
         => _context = context;
 
-    // Create the recipe object:
+    // Update the recipe object:
     public async Task Handle(UpdateRecipeCommand request, CancellationToken ct)
     {
         var entity = await _context.Recipes.FindAsync(new object[] { request.Id }, ct);

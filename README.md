@@ -41,6 +41,7 @@ I backenden er koden opdelt i de fire essentielle lag. Her er den vigtigste poin
 
 ![alt text](assets/CA-image.svg)
 
+https://cleanarchitecture.jasontaylor.dev/
 ---
 
 ## Ordbog
