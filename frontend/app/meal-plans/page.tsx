@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { MealPlanDto, MealPlanDetailDto, RecipeDto } from "@/lib/types"
+import { MealPlanDto, MealPlanDetailDto, RecipeDto, ShoppingListItemDto } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 
 async function fetchApiClient<T = void>(url: string, accessToken: string, options?: RequestInit): Promise<T> {
     const response = await fetch(`http://localhost:5285${url}`, {
@@ -46,12 +47,21 @@ function toDateString(date: Date): string {
     return date.toISOString().split("T")[0]
 }
 
+const UNIT_LABELS: Record<number, string> = {
+    0: "g", 1: "kg", 2: "ml", 3: "l", 4: "tsk", 5: "spsk", 6: "kop", 7: "stk"
+}
+
+function unitLabel(unit: number): string {
+    return UNIT_LABELS[unit] ?? ""
+}
+
 export default function MealPlansPage() {
     const { data: session, status } = useSession()
     const accessToken = (session as any)?.accessToken ?? ""
     const queryClient = useQueryClient()
     const [weekOffset, setWeekOffset] = useState(0)
     const [addingEntry, setAddingEntry] = useState<{ day: number; mealType: number } | null>(null)
+    const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set())
 
     const weekStart = getMondayOfWeek(weekOffset)
     const weekNumber = getWeekNumber(weekStart)
@@ -65,6 +75,10 @@ export default function MealPlansPage() {
 
     const currentPlan = mealPlans.find(p => p.weekStartDate === weekStartStr)
 
+    useEffect(() => {
+        setCheckedItems(new Set())
+    }, [currentPlan?.id])
+
     const { data: planDetail } = useQuery({
         queryKey: ["meal-plan", currentPlan?.id],
         queryFn: () => fetchApiClient<MealPlanDetailDto>(`/api/MealPlans/${currentPlan!.id}`, accessToken),
@@ -75,6 +89,12 @@ export default function MealPlansPage() {
         queryKey: ["recipes"],
         queryFn: () => fetchApiClient<RecipeDto[]>("/api/Recipes", accessToken),
         enabled: !!accessToken,
+    })
+
+    const { data: shoppingList = [] } = useQuery({
+        queryKey: ["shopping-list", currentPlan?.id],
+        queryFn: () => fetchApiClient<ShoppingListItemDto[]>(`/api/MealPlans/${currentPlan!.id}/shopping-list`, accessToken),
+        enabled: !!accessToken && !!currentPlan,
     })
 
     const { mutate: createPlan, isPending: isCreating } = useMutation({
@@ -94,6 +114,7 @@ export default function MealPlansPage() {
             }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["meal-plan", currentPlan?.id] })
+            queryClient.invalidateQueries({ queryKey: ["shopping-list", currentPlan?.id] })
             setAddingEntry(null)
         },
     })
@@ -101,7 +122,10 @@ export default function MealPlansPage() {
     const { mutate: removeEntry } = useMutation({
         mutationFn: (entryId: number) =>
             fetchApiClient(`/api/MealPlans/entries/${entryId}`, accessToken, { method: "DELETE" }),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["meal-plan", currentPlan?.id] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["meal-plan", currentPlan?.id] })
+            queryClient.invalidateQueries({ queryKey: ["shopping-list", currentPlan?.id] })
+        },
     })
 
     const getEntry = (day: number, mealType: number) =>
@@ -210,6 +234,44 @@ export default function MealPlansPage() {
                                 })}
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* Shopping list */}
+                {shoppingList.length > 0 && (
+                    <div className="mt-6 bg-white border border-stone-200 rounded-2xl shadow-sm p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-xs font-semibold uppercase tracking-widest text-stone-400">Indkøbsliste</p>
+                            <span className="text-xs text-stone-400">{checkedItems.size}/{shoppingList.length} købt</span>
+                        </div>
+                        <ul className="flex flex-col gap-3">
+                            {shoppingList.map((item, i) => {
+                                const key = `${item.name}-${item.unit}`
+                                const checked = checkedItems.has(key)
+                                return (
+                                    <li key={i} className="flex items-center gap-3">
+                                        <Checkbox
+                                            id={key}
+                                            checked={checked}
+                                            onCheckedChange={() => {
+                                                setCheckedItems(prev => {
+                                                    const next = new Set(prev)
+                                                    checked ? next.delete(key) : next.add(key)
+                                                    return next
+                                                })
+                                            }}
+                                        />
+                                        <label
+                                            htmlFor={key}
+                                            className={`flex-1 flex justify-between text-sm cursor-pointer transition ${checked ? "line-through text-stone-300" : "text-stone-700"}`}
+                                        >
+                                            <span>{item.name}</span>
+                                            <span className="text-stone-400">{item.quantity} {unitLabel(item.unit)}</span>
+                                        </label>
+                                    </li>
+                                )
+                            })}
+                        </ul>
                     </div>
                 )}
             </div>

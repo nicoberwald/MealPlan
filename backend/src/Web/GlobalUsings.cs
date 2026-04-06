@@ -19,3 +19,4 @@ global using SmartMealPlanner.Application.MealPlans.Commands.DeleteMealPlan;
 global using SmartMealPlanner.Application.MealPlans.Commands.AddMealPlanEntry;
 global using SmartMealPlanner.Application.MealPlans.Commands.RemoveMealPlanEntry;
 global using SmartMealPlanner.Application.Recipes.Commands.GenerateRecipe;
+global using SmartMealPlanner.Application.MealPlans.Queries.GetShoppingList;

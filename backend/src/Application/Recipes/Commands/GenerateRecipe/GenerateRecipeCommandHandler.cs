@@ -17,10 +17,10 @@ public class GenerateRecipeCommandHandler : IRequestHandler<GenerateRecipeComman
     public async Task<int> Handle(GenerateRecipeCommand request, CancellationToken ct)
     {
         var json = await _geminiService.GenerateRecipeJsonAsync(request.Prompt, ct);
-        var command = JsonSerializer.Deserialize<CreateRecipeCommand>(json, new
-JsonSerializerOptions
+        var command = JsonSerializer.Deserialize<CreateRecipeCommand>(json, new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
         });
 
         Guard.Against.Null(command, nameof(command));
