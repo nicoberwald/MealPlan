@@ -8,6 +8,8 @@ Jeg har valgt at samle både frontend og backend i et enkelt repo for overskueli
 
 **NB: Nedenfor er en "Getting Started" guide, som kan følges, hvis man ønsker at kunne køre MealPlanneren (Den er i øjeblikket ikke deploytet med Vercel, og databasen køres også lige nu med en SQLite). Derfor kræver opsætningen lige et par enkelte steps :)**
 
+Ellers ligger der Screenshots i **~/docs/Screenshots**
+
 ---
 
 ## 0. Getting Started
