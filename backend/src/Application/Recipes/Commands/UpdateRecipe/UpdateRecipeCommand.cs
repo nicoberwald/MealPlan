@@ -2,7 +2,7 @@ namespace SmartMealPlanner.Application.Recipes.Commands.UpdateRecipe;
 
 public record UpdateRecipeCommand : IRequest
 {
-    public int Id { get; }
+    public int Id { get; init; }
 
     public string Name { get; init; } = string.Empty; // Default er en tom string
 

@@ -1,3 +1,9 @@
 global using Ardalis.GuardClauses;
 global using SmartMealPlanner.Web.Infrastructure;
 global using MediatR;
+global using Microsoft.AspNetCore.Http.HttpResults;
+global using SmartMealPlanner.Application.Recipes.Queries.GetRecipes;
+global using SmartMealPlanner.Application.Recipes.Queries.GetRecipeById;
+global using SmartMealPlanner.Application.Recipes.Commands.CreateRecipe;
+global using SmartMealPlanner.Application.Recipes.Commands.DeleteRecipe;
+global using SmartMealPlanner.Application.Recipes.Commands.UpdateRecipe;
