@@ -6,7 +6,64 @@ Denne README beskriver den overordnede arkitektur af projektet, hvor netop Clean
 
 Jeg har valgt at samle både frontend og backend i et enkelt repo for overskuelighed.
 
+**NB: Nedenfor er en "Getting Started" guide, som kan følges, hvis man ønsker at kunne køre MealPlanneren (Den er i øjeblikket ikke deploytet med Vercel, og databasen køres også lige nu med en SQLite). Derfor kræver opsætningen lige et par enkelte steps :)**
+
 ---
+
+## 0. Getting Started
+
+### 1. Opsætning af Backend
+Du skal bruge en Gemini API-nøgle for at teste AI-opskriftsgeneratoren.
+
+1. Åbn en terminal og gå backend/src/Web:
+    ```bash
+    cd backend/src/Web
+    ```
+2. Initialiser secrets for projektet:
+   ```bash
+   dotnet user-secrets init
+   ```
+3. Tilføj din egen Gemini API-nøgle (erstat teksten i anførselstegn):
+   ```bash
+   dotnet user-secrets set "Gemini:ApiKey" "indsæt_gemini_api_key_her"
+   ```
+
+### 2. Opsætning af Frontend
+Vi bruger Auth.js til authentication, og det kræver følgende opsætning:
+1. Gå til frontend-mappen i terminalen:
+   ```bash
+   cd frontend
+   ```
+2. Opret en fil ved navn `.env.local`
+2. Generer secret i terminalen:
+   ```bash
+   npx auth secret
+   ```
+4. Tilføj følgende konfigurationer til filen:
+   ```env
+   AUTH_SECRET="skriv_en_tilfældig_sikker_streng_her"
+   ```
+
+### 3. Start MealPlanner
+Der er lavet et samlet start-script fra root:
+1. Gå tilbage til **root**
+2. Installer alle dependencies:
+   ```bash
+   npm install
+   ```
+3. Start programmet:
+   ```bash
+   npm run dev
+   ```
+Programmet kører nu på [http://localhost:3000](http://localhost:3000)
+
+### 4. Login
+Når MealPlanneren kører, kan man bruge den ved at logge ind med følgende standard admin credentials:
+
+* **Brugernavn / Email:** `administrator@localhost`
+* **Adgangskode:** `Administrator1!`
+
+**Dette gælder naturligvis kun, indtil en potentiel Vercel/Azure hosting :D**
 
 ## 1. Arkitektur
 

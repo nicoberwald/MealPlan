@@ -1,0 +1,24 @@
+{
+  "name": "mealplan",
+  "version": "1.0.0",
+  "description": "Dette repo er lavet for at lege med Clean Architecture Template backend og Next.JS frontend. Jeg har valgt at lave et projekt med en Meal Planner med en AI integration, som vil gøre det muligt at generere opskrifter med prompts, hvor opskrifterne vil blive genereret. Her vil man så kunne fordele de forskellige retter ud på ugen, hvorefter en samlet indkøbsliste vil blive lavet.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"cd backend && dotnet run --project src/Web\" \"cd frontend && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicoberwald/MealPlan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nicoberwald/MealPlan/issues"
+  },
+  "homepage": "https://github.com/nicoberwald/MealPlan#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
