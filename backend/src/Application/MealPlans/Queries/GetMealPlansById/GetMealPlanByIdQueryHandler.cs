@@ -15,8 +15,10 @@ public class GetMealPlanByIdQueryHandler : IRequestHandler<GetMealPlanByIdQuery,
     public async Task<MealPlanDetailDto> Handle(GetMealPlanByIdQuery request, CancellationToken ct)
     {
         var entity = await _context.MealPlans
-        .AsNoTracking()
-        .FirstOrDefaultAsync(m => m.Id == request.Id, ct);
+            .Include(m => m.Entries)
+                .ThenInclude(e => e.Recipe)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.Id == request.Id, ct);
 
         Guard.Against.NotFound(request.Id, entity);
 

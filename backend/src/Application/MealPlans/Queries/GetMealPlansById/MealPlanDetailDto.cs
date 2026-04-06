@@ -7,12 +7,14 @@ public class MealPlanDetailDto
 
     public DateOnly WeekStartDate { get; init; }
 
+    public IList<MealPlanEntryDto> Entries { get; init; } = new List<MealPlanEntryDto>();
+
     // AutoMapper mapping (conversion from MealPlan to MealPlanDetailDto)
     private class Mapping : Profile
     {
         public Mapping()
         {
-            CreateMap<MealPlan, MealPlanDetailDto>();
+            CreateMap<MealPlan, MealPlanDetailDto>().ForMember(d => d.Entries, o => o.MapFrom(s => s.Entries));
         }
     }
 }
